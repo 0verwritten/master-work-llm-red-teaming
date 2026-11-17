@@ -1,0 +1,39 @@
+schema_version: 1
+runner:
+  type: native
+  experiment_class: controlled
+task:
+  benchmark_item_id: benchmark-001
+agent:
+  strategy: reactive
+  system_prompt_variant: baseline-v1
+  context_mode: full_history
+  summarize_every_n_steps: null
+  max_steps: 20
+  max_wall_time_seconds: 1800
+  max_code_executions: 20
+models:
+  researcher: {provider: mock, model: deterministic-v1, temperature: 0}
+  attacker: {provider: mock, model: deterministic-v1, temperature: 0.7}
+  target: {provider: mock, model: deterministic-v1, temperature: 0.7}
+  judge: {provider: mock, model: deterministic-v1, temperature: 0}
+tools:
+  enabled: [note_finding, finish_experiment]
+budgets:
+  max_total_llm_calls: 10
+  max_input_tokens: 10000
+  max_output_tokens: 5000
+  max_estimated_cost_usd: 1
+code_execution:
+  provider: modal
+  language: python
+  network: disabled
+  cpu: 2
+  memory_mb: 4096
+  timeout_seconds: 600
+  max_files: 20
+  max_input_bytes: 1000000
+  max_output_bytes: 10000000
+reporting:
+  telegram: false
+  include_private_trace_link: false

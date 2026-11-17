@@ -1,0 +1,333 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Ukrainian HarmBench correction review</title>
+<style>
+  :root { --bg:#12141a; --panel:#1b1e26; --line:#2b303c; --ink:#e6e8ee; --dim:#9aa3b2;
+          --ok:#4ba36a; --bad:#c9584f; --warn:#c2913f; --accent:#5b8cc4; --field:#0e1016;
+          --add:#25482f; --addink:#8fe6a6; --del:#4a2530; --delink:#f0a1ac }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif }
+  header { padding:10px 18px; border-bottom:1px solid var(--line); display:flex;
+           gap:16px; align-items:center; flex-wrap:wrap }
+  h1 { font-size:15px; margin:0; font-weight:600 }
+  .stat { color:var(--dim); font-size:13px }
+  .stat b { color:var(--ink) }
+  main { display:grid; grid-template-columns:230px minmax(0,1fr) 340px;
+         height:calc(100vh - 52px) }
+  nav, #diff, #decide { overflow:auto; min-width:0 }
+  nav { border-right:1px solid var(--line) }
+  #decide { border-left:1px solid var(--line); background:#151821; padding:14px 16px }
+  .filters { display:flex; gap:4px; padding:8px; border-bottom:1px solid var(--line); flex-wrap:wrap }
+  .filters button { flex:1; background:none; border:1px solid var(--line); color:var(--dim);
+                    border-radius:5px; padding:5px 4px; font-size:11px; cursor:pointer }
+  .filters button[aria-pressed=true] { background:var(--panel); color:var(--ink); border-color:var(--accent) }
+  nav ul { list-style:none; margin:0; padding:0 }
+  nav li button { width:100%; text-align:left; background:none; border:0; color:var(--ink);
+                  padding:7px 10px; cursor:pointer; border-bottom:1px solid var(--line);
+                  font-size:12px; display:flex; gap:7px; align-items:baseline }
+  nav li button:hover { background:var(--panel) }
+  nav li button[aria-current=true] { background:var(--panel); border-left:3px solid var(--accent) }
+  .badge { width:9px; height:9px; border-radius:50%; flex:none; margin-top:4px; background:#3a4150 }
+  .badge.done { background:var(--ok) } .badge.dissent { background:var(--bad) }
+  .idx { color:var(--dim); font-variant-numeric:tabular-nums }
+  .corr-dot { color:var(--warn); font-weight:700 }
+  section { padding:16px 18px }
+  .fieldblock { margin-bottom:20px }
+  .fieldblock > h2 { font-size:12px; margin:0 0 8px; text-transform:uppercase;
+                     letter-spacing:.06em; color:var(--dim); font-weight:600;
+                     display:flex; gap:8px; align-items:center }
+  .cols { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0; border:1px solid var(--line);
+          border-radius:7px; overflow:hidden }
+  .cols > div { padding:10px 12px; min-width:0; border-right:1px solid var(--line) }
+  .cols > div:last-child { border-right:0 }
+  .cols > div.en { background:#161922 }
+  .cols > div.prop.changed { background:#141b16 }
+  .lbl { font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--dim); margin-bottom:6px }
+  .body { white-space:pre-wrap; overflow-wrap:anywhere; font-size:13.5px; line-height:1.5;
+          font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace }
+  .prose .body { font-family:inherit; font-size:14px }
+  ins { background:var(--add); color:var(--addink); text-decoration:none; border-radius:2px }
+  del { background:var(--del); color:var(--delink); border-radius:2px }
+  .sev { font-size:10.5px; padding:1px 6px; border-radius:9px; text-transform:uppercase; letter-spacing:.04em }
+  .sev.critical { background:var(--del); color:var(--delink) }
+  .sev.major { background:#4a3a1e; color:var(--warn) }
+  .sev.minor { background:#2b303c; color:var(--dim) }
+  .rationale { margin-top:8px; font-size:12.5px; color:var(--dim); border-left:2px solid var(--warn);
+               padding:2px 0 2px 10px; white-space:pre-wrap }
+  #decide h2 { font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--dim);
+               font-weight:600; margin:0 0 8px }
+  .choice { display:block; border:1px solid var(--line); border-radius:6px; padding:9px 11px;
+            margin-bottom:7px; cursor:pointer; font-size:13px }
+  .choice[data-on=true] { border-color:var(--accent); background:#182030 }
+  .choice input { margin-right:8px }
+  .choice .hint { color:var(--dim); font-size:11.5px; margin:3px 0 0 24px }
+  textarea, select, input[type=text] { width:100%; background:var(--field); color:var(--ink);
+    border:1px solid var(--line); border-radius:6px; padding:7px; font:inherit; font-size:13px }
+  textarea { min-height:60px; resize:vertical; font-family:"SFMono-Regular",Consolas,monospace }
+  .dims { margin:12px 0 }
+  .dims label { display:grid; grid-template-columns:1fr 118px; gap:8px; align-items:center;
+                margin-bottom:6px; font-size:12.5px; color:var(--dim) }
+  .dims select { font-size:12px; padding:5px }
+  .dims select[data-v=fail] { color:var(--delink); border-color:var(--bad) }
+  .dims select[data-v=not_judgeable] { color:var(--warn); border-color:var(--warn) }
+  button.act { background:var(--accent); color:#fff; border:0; border-radius:6px;
+               padding:10px 16px; font:inherit; font-weight:600; cursor:pointer; width:100% }
+  button.act[disabled] { background:#39414f; color:var(--dim); cursor:not-allowed }
+  .row2 { display:flex; gap:8px; margin-top:10px }
+  .row2 .act { width:auto; flex:1 }
+  .msg { font-size:12.5px; margin-top:10px; min-height:17px }
+  .err { color:var(--bad) } .good { color:var(--ok) }
+  .manual { display:none; margin-top:10px }
+  .manual.on { display:block }
+  .manual .lbl { margin-top:9px }
+  kbd { background:#2b303c; border-radius:3px; padding:0 5px; font-size:11px; color:var(--dim) }
+  #finalize { margin-top:18px; border-top:1px solid var(--line); padding-top:14px }
+  details.help summary { cursor:pointer; color:var(--accent); font-size:12px }
+  details.help p { font-size:12px; color:var(--dim) }
+</style>
+
+<header>
+  <h1>Ukrainian HarmBench · correction review</h1>
+  <span class="stat">reviewer <b id="who">vlad</b></span>
+  <span class="stat"><b id="done">0</b>/<b id="total">120</b> decided · <span id="left">0</span> left</span>
+  <span class="stat" id="cursor"></span>
+  <span class="stat" style="margin-left:auto"><kbd>j</kbd>/<kbd>k</kbd> move · <kbd>n</kbd> next open · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> pick · <kbd>s</kbd> save</span>
+</header>
+
+<main>
+  <nav>
+    <div class="filters">
+      <button data-f="all" aria-pressed="true">All</button>
+      <button data-f="remaining">Open</button>
+      <button data-f="corrections">Fixes</button>
+      <button data-f="done">Done</button>
+    </div>
+    <ul id="list"></ul>
+  </nav>
+
+  <section id="diff"><p class="stat">Loading…</p></section>
+
+  <aside id="decide"></aside>
+</main>
+
+<script>
+const TOKEN = "__SESSION_TOKEN__";
+const DIMLABEL = {
+  semantic_equivalence:"Semantic equivalence", naturalness:"Naturalness & grammar",
+  category_match:"Category match", rubric_match:"Rubric match",
+  expected_behavior_match:"Expected-behavior match" };
+const SELDESC = {
+  accept_deepl:["Accept DeepL","Keep the original machine translation unchanged."],
+  accept_proposal:["Accept proposal","Use the agent's suggested Ukrainian text."],
+  edit_manual:["Edit manually","Type your own corrected Ukrainian text."] };
+let STATE=null, SCHEMA=null, cur=null, filter="all", draft={};
+
+const api = async (path, opts={}) => {
+  const r = await fetch(path, {...opts, headers:{...(opts.headers||{}),
+    "X-Review-App-Token":TOKEN, ...(opts.body?{"Content-Type":"application/json"}:{})}});
+  const j = await r.json(); if(!r.ok) throw new Error(j.error||("HTTP "+r.status)); return j; };
+
+const esc = s => (s??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+
+// Word-level diff so every proposed change is visible.
+function diffHTML(a,b){
+  a=a||""; b=b||"";
+  const A=a.split(/(\s+)/), B=b.split(/(\s+)/);
+  const n=A.length,m=B.length, dp=Array.from({length:n+1},()=>new Array(m+1).fill(0));
+  for(let i=n-1;i>=0;i--)for(let j=m-1;j>=0;j--)
+    dp[i][j]=A[i]===B[j]?dp[i+1][j+1]+1:Math.max(dp[i+1][j],dp[i][j+1]);
+  let i=0,j=0,out="";
+  while(i<n&&j<m){
+    if(A[i]===B[j]){out+=esc(B[j]);i++;j++;}
+    else if(dp[i+1][j]>=dp[i][j+1]){out+="<del>"+esc(A[i])+"</del>";i++;}
+    else {out+="<ins>"+esc(B[j])+"</ins>";j++;}
+  }
+  while(i<n){out+="<del>"+esc(A[i])+"</del>";i++;}
+  while(j<m){out+="<ins>"+esc(B[j])+"</ins>";j++;}
+  return out;
+}
+
+function statusOf(pid){
+  const d=STATE.decisions[pid]; if(!d) return null;
+  const dissent=Object.values(d.dimensions).some(v=>v!=="pass");
+  return {done:true, dissent, selection:d.selection}; }
+
+function recordOf(pid){ return STATE.records.find(r=>r.pair_id===pid); }
+
+function renderList(){
+  const ul=document.getElementById("list"); ul.innerHTML="";
+  STATE.records.forEach(r=>{
+    const st=statusOf(r.pair_id);
+    const isCorr=r.disposition==="propose_correction";
+    if(filter==="remaining"&&st) return;
+    if(filter==="done"&&!st) return;
+    if(filter==="corrections"&&!isCorr) return;
+    const li=document.createElement("li");
+    const b=document.createElement("button");
+    b.setAttribute("aria-current", r.pair_id===cur);
+    b.innerHTML=`<span class="badge ${st?(st.dissent?"dissent":"done"):""}"></span>`+
+      `<span class="idx">${String(r.index).padStart(3,"0")}</span>`+
+      `<span>${esc(r.pair_id.replace("harmbench:",""))} ${isCorr?'<span class="corr-dot">●</span>':''}</span>`;
+    b.onclick=()=>select(r.pair_id);
+    li.appendChild(b); ul.appendChild(li);
+  });
+}
+
+function fieldCols(title,cls,en,machine,proposed,rationale){
+  const changed = proposed!==machine;
+  const sev = rationale? `<span class="sev ${rationale.severity}">${rationale.severity}</span>`:"";
+  const propBody = changed? diffHTML(machine,proposed) : esc(proposed);
+  const rat = rationale? `<div class="rationale">${esc(rationale.note)}</div>`:"";
+  return `<div class="fieldblock ${cls}">
+    <h2>${title} ${changed?'<span class="sev major">proposed change</span>':''} ${sev}</h2>
+    <div class="cols">
+      <div class="en"><div class="lbl">English source</div><div class="body">${esc(en)}</div></div>
+      <div><div class="lbl">DeepL (original)</div><div class="body">${esc(machine)}</div></div>
+      <div class="prop ${changed?'changed':''}"><div class="lbl">Proposed</div><div class="body">${propBody}</div></div>
+    </div>${rat}</div>`;
+}
+
+function renderDiff(){
+  const r=recordOf(cur); const sec=document.getElementById("diff");
+  const rr=r.rationale||{};
+  let html=`<section style="padding:16px 18px">
+    <div class="stat" style="margin-bottom:14px">#${String(r.index).padStart(3,"0")} · <b>${esc(r.pair_id)}</b> · ${esc(r.category)} · expects <b>${esc(r.expected_behavior)}</b></div>`;
+  html+=fieldCols("Prompt","prose",r.english.prompt_text,r.machine_deepl.prompt_text,r.proposed.prompt_text,rr.prompt_text);
+  if(r.english.context_text!==null || r.machine_deepl.context_text!==null)
+    html+=fieldCols("Context",(String(r.pair_id).includes("shell")||String(r.pair_id).includes("code")||String(r.pair_id).includes("worm")||String(r.pair_id).includes("ddos"))?"":"prose",
+      r.english.context_text||"",r.machine_deepl.context_text||"",r.proposed.context_text||"",rr.context_text);
+  html+=fieldCols("Shared rubric","prose",r.english.rubric_text,r.machine_deepl.rubric_text,r.proposed.rubric_text,rr.rubric_text);
+  sec.innerHTML=html+"</section>";
+}
+
+function renderDecide(){
+  const r=recordOf(cur); const d=STATE.decisions[cur]; const box=document.getElementById("decide");
+  const dr = draft[cur] || (d? {selection:d.selection, dimensions:{...d.dimensions}, notes:d.notes,
+    manual:{...d.final}} : {selection:r.disposition==="propose_correction"?"accept_proposal":"accept_deepl",
+    dimensions:Object.fromEntries(SCHEMA.dimensions.map(x=>[x,"pass"])), notes:"",
+    manual:{...r.proposed}});
+  draft[cur]=dr;
+  let choices="";
+  for(const s of SCHEMA.selections){
+    const [t,h]=SELDESC[s];
+    choices+=`<label class="choice" data-on="${dr.selection===s}">
+      <input type="radio" name="sel" value="${s}" ${dr.selection===s?"checked":""}>${t}
+      <div class="hint">${h}</div></label>`;
+  }
+  let dims="";
+  for(const dim of SCHEMA.dimensions){
+    const v=dr.dimensions[dim];
+    dims+=`<label>${DIMLABEL[dim]}<select data-dim="${dim}" data-v="${v}">`+
+      SCHEMA.verdicts.map(x=>`<option value="${x}" ${x===v?"selected":""}>${x.replace("_"," ")}</option>`).join("")+
+      `</select></label>`;
+  }
+  const ctxReq = r.machine_deepl.context_text!==null;
+  box.innerHTML=`<h2>Chosen version</h2>${choices}
+    <div class="manual ${dr.selection==="edit_manual"?"on":""}" id="manual">
+      <div class="lbl">Ukrainian prompt</div><textarea id="m_prompt">${esc(dr.manual.prompt_text)}</textarea>
+      ${ctxReq?`<div class="lbl">Ukrainian context</div><textarea id="m_ctx" style="min-height:120px">${esc(dr.manual.context_text||"")}</textarea>`:""}
+      <div class="lbl">Ukrainian rubric</div><textarea id="m_rubric">${esc(dr.manual.rubric_text)}</textarea>
+    </div>
+    <h2 style="margin-top:16px">Five-dimension verdict</h2>
+    <div class="dims">${dims}</div>
+    <div class="lbl">Notes (keep dissent explicit)</div>
+    <textarea id="notes" style="font-family:inherit">${esc(dr.notes)}</textarea>
+    <div class="row2">
+      <button class="act" id="save">${d?"Update decision":"Save decision"}</button>
+      <button class="act" id="next" style="flex:0 0 auto;background:#39414f">Next ▸</button>
+    </div>
+    <div class="msg" id="msg">${d?`<span class="good">decided · ${esc(d.selection.replace("_"," "))}${d.changed_from_machine?" · corrected":""}</span>`:""}</div>
+    <div id="finalize"><h2>Finalize</h2>
+      <button class="act" id="finbtn" ${STATE.summary.ready?"":"disabled"}>Finalize all ${STATE.summary.total} → reviewed artifact</button>
+      <div class="msg" id="finmsg">${STATE.summary.ready?"all items decided":STATE.summary.remaining+" still open"}</div>
+      <details class="help"><summary>What finalization does</summary>
+        <p>Refuses while any item is undecided or stale. Writes a new reviewed artifact
+        (never overwrites DeepL), sets provenance <code>machine_deepl_human_verified</code>
+        for unchanged accepts and <code>machine_deepl_human_corrected</code> for edits, and
+        marks <code>human_verified</code> only where all five dimensions pass.</p></details>
+    </div>`;
+  box.querySelectorAll('input[name=sel]').forEach(el=>el.onchange=()=>{
+    dr.selection=el.value;
+    if(el.value==="accept_deepl") dr.manual={prompt_text:r.machine_deepl.prompt_text,context_text:r.machine_deepl.context_text,rubric_text:r.machine_deepl.rubric_text};
+    if(el.value==="accept_proposal") dr.manual={...r.proposed};
+    renderDecide();
+  });
+  box.querySelectorAll('select[data-dim]').forEach(el=>el.onchange=()=>{
+    dr.dimensions[el.dataset.dim]=el.value; el.dataset.v=el.value; });
+  const bind=(id,key,sub)=>{const e=document.getElementById(id); if(e)e.oninput=()=>{ if(sub) dr.manual[sub]=e.value; else dr[key]=e.value; };};
+  bind("m_prompt",null,"prompt_text"); bind("m_ctx",null,"context_text"); bind("m_rubric",null,"rubric_text");
+  bind("notes","notes");
+  document.getElementById("save").onclick=save;
+  document.getElementById("next").onclick=()=>gotoNext(false);
+  document.getElementById("finbtn").onclick=finalize;
+}
+
+function render(){ renderList(); if(cur){renderDiff(); renderDecide();}
+  document.getElementById("done").textContent=STATE.summary.completed;
+  document.getElementById("total").textContent=STATE.summary.total;
+  document.getElementById("left").textContent=STATE.summary.remaining;
+  document.getElementById("who").textContent=STATE.reviewer_id;
+  const r=cur?recordOf(cur):null;
+  document.getElementById("cursor").textContent=r?`#${String(r.index).padStart(3,"0")}`:""; }
+
+function select(pid){ cur=pid; render();
+  document.getElementById("diff").scrollTop=0; }
+
+async function save(){
+  const r=recordOf(cur); const dr=draft[cur]; const msg=document.getElementById("msg");
+  const payload={pair_id:cur, reviewer_id:STATE.reviewer_id, selection:dr.selection,
+    dimensions:dr.dimensions, notes:dr.notes,
+    machine_content_sha256:r.machine_content_sha256, proposal_content_sha256:r.proposal_content_sha256};
+  if(dr.selection==="edit_manual") payload.manual_fields=dr.manual;
+  try{ STATE=await api("/api/decision",{method:"POST",body:JSON.stringify(payload)});
+    delete draft[cur]; msg.innerHTML='<span class="good">saved</span>'; render();
+  }catch(e){ msg.innerHTML='<span class="err">'+esc(e.message)+'</span>'; }
+}
+
+function gotoNext(onlyOpen){
+  const list=STATE.records;
+  const start=list.findIndex(r=>r.pair_id===cur);
+  for(let k=1;k<=list.length;k++){
+    const r=list[(start+k)%list.length];
+    if(onlyOpen && STATE.decisions[r.pair_id]) continue;
+    select(r.pair_id); return;
+  }
+}
+
+async function finalize(){
+  const m=document.getElementById("finmsg");
+  try{ const j=await api("/api/finalize",{method:"POST",body:"{}"});
+    STATE=await api("/api/state"); render();
+    m.innerHTML='<span class="good">finalized → '+esc(j.path)+'</span>';
+  }catch(e){ m.innerHTML='<span class="err">'+esc(e.message)+'</span>'; }
+}
+
+document.querySelectorAll(".filters button").forEach(b=>b.onclick=()=>{
+  filter=b.dataset.f;
+  document.querySelectorAll(".filters button").forEach(x=>x.setAttribute("aria-pressed",x===b));
+  renderList();
+});
+
+document.addEventListener("keydown",e=>{
+  if(/^(TEXTAREA|SELECT|INPUT)$/.test(e.target.tagName)&&e.key!=="Escape") return;
+  const list=STATE?STATE.records:[]; const i=list.findIndex(r=>r.pair_id===cur);
+  if(e.key==="j"){ if(i<list.length-1) select(list[i+1].pair_id); }
+  else if(e.key==="k"){ if(i>0) select(list[i-1].pair_id); }
+  else if(e.key==="n"){ gotoNext(true); }
+  else if(e.key==="1"||e.key==="2"||e.key==="3"){ const s=SCHEMA.selections[+e.key-1];
+    if(s){draft[cur].selection=s; if(s==="accept_proposal")draft[cur].manual={...recordOf(cur).proposed};
+      if(s==="accept_deepl"){const r=recordOf(cur);draft[cur].manual={prompt_text:r.machine_deepl.prompt_text,context_text:r.machine_deepl.context_text,rubric_text:r.machine_deepl.rubric_text};}
+      renderDecide();} }
+  else if(e.key==="s"){ save(); }
+});
+
+(async()=>{
+  SCHEMA=await api("/api/schema"); STATE=await api("/api/state");
+  cur=STATE.records[0].pair_id;
+  // Jump to first undecided so resume lands where work is left.
+  const open=STATE.records.find(r=>!STATE.decisions[r.pair_id]);
+  if(open) cur=open.pair_id;
+  render();
+})().catch(e=>{document.getElementById("diff").innerHTML='<p class="err" style="padding:18px">'+esc(e.message)+'</p>';});
+</script>

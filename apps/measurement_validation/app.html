@@ -1,0 +1,505 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Measurement validation</title>
+<style>
+  :root { --bg:#12141a; --panel:#1b1e26; --line:#2b303c; --ink:#e6e8ee; --dim:#9aa3b2;
+          --ok:#4ba36a; --bad:#c9584f; --warn:#c2913f; --accent:#5b8cc4; --field:#0e1016 }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--ink);
+         font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif }
+  header { padding:12px 18px; border-bottom:1px solid var(--line); display:flex;
+           gap:18px; align-items:center; flex-wrap:wrap; height:57px }
+  h1 { font-size:16px; margin:0; font-weight:600 }
+  .stat { color:var(--dim); font-size:13px }
+
+  /* Three columns: queue, the text under review, the judgement. The judgement
+     never scrolls the text out of view, which is the whole point of splitting. */
+  main { display:grid; grid-template-columns:210px minmax(0,1fr) minmax(400px,33vw);
+         height:calc(100vh - 57px) }
+  nav, #subject, #judge { overflow:auto; min-width:0 }
+  nav { border-right:1px solid var(--line) }
+  #judge { border-left:1px solid var(--line); background:#151821 }
+  nav button { width:100%; text-align:left; background:none; border:0; color:var(--ink);
+               padding:8px 12px; cursor:pointer; border-bottom:1px solid var(--line); font-size:13px }
+  nav button:hover { background:var(--panel) }
+  nav button[aria-current="true"] { background:var(--panel); border-left:3px solid var(--accent) }
+  .tag { font-size:11px; color:var(--dim) }
+  section, aside { padding:16px 18px }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px;
+           padding:14px 16px; margin-bottom:14px }
+  .panel h2 { font-size:13px; margin:0 0 10px; text-transform:uppercase;
+              letter-spacing:.06em; color:var(--dim); font-weight:600 }
+  .txt { white-space:pre-wrap; font-size:14px }
+  table { width:100%; border-collapse:collapse; font-size:14px }
+  td { padding:6px 4px; border-bottom:1px solid var(--line); vertical-align:top }
+  td:first-child { color:var(--dim); width:38% }
+  textarea, input[type=text], select { width:100%; background:var(--field); color:var(--ink);
+    border:1px solid var(--line); border-radius:6px; padding:8px; font:inherit }
+  select { cursor:pointer }
+  textarea { min-height:64px; resize:vertical }
+  button.act { background:var(--accent); color:#fff; border:0; border-radius:6px;
+               padding:11px 18px; font:inherit; font-weight:600; cursor:pointer }
+  button.act.ghost { background:#39414f }
+  button.act[disabled] { background:#39414f; color:var(--dim); cursor:not-allowed }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:12px }
+  .msg { font-size:13px; margin-top:8px; min-height:18px }
+  .err { color:var(--bad) } .good { color:var(--ok) }
+  .locked { color:var(--ok) } .pending { color:var(--warn) }
+  .gate { color:var(--dim); font-size:13px; font-style:italic }
+  .diff { color:var(--warn) }
+  .pair { display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--line);
+          border-radius:6px; overflow:hidden }
+  .pair > div { padding:10px 12px; min-width:0 }
+  .pair > div:first-child { border-right:1px solid var(--line); background:#161922 }
+  .lbl { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--dim); margin-bottom:5px }
+  .body { white-space:pre-wrap; overflow-wrap:anywhere; font-size:14px; line-height:1.5 }
+  .uk { font-size:14.5px }
+  details.help { margin-top:10px }
+  details.help summary { cursor:pointer; color:var(--accent); font-size:13px }
+  details.help dl { margin:8px 0 0; font-size:13px; color:var(--dim) }
+  details.help dt { color:var(--ink); margin-top:7px; font-weight:600 }
+
+  /* Large hit targets. A 13px radio dot is the slowest control on this page. */
+  .grid { display:flex; flex-direction:column; gap:8px }
+  .dim { border:1px solid transparent; border-radius:8px; padding:6px 6px 7px }
+  .dim.active { border-color:var(--accent); background:#181c26 }
+  .dimname { font-size:12px; color:var(--dim); margin-bottom:5px; display:flex;
+             gap:8px; align-items:center }
+  kbd { font:11px/1 ui-monospace,monospace; color:var(--dim); border:1px solid var(--line);
+        border-radius:4px; padding:3px 5px; background:var(--field) }
+  .seg { display:flex; gap:6px }
+  .seg input { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none }
+  .seg label { flex:1 1 0; text-align:center; padding:11px 6px; border:1px solid var(--line);
+               border-radius:7px; background:var(--field); cursor:pointer; font-size:13.5px;
+               user-select:none; line-height:1.2 }
+  .seg label:hover { border-color:var(--accent) }
+  .seg input:checked + label { color:#fff; font-weight:600 }
+  .seg input:checked + label[data-v="pass"] { background:var(--ok); border-color:var(--ok) }
+  .seg input:checked + label[data-v="fail"] { background:var(--bad); border-color:var(--bad) }
+  .seg input:checked + label[data-v="not_judgeable"] { background:var(--warn); border-color:var(--warn) }
+  .seg input:checked + label:not([data-v="pass"]):not([data-v="fail"]):not([data-v="not_judgeable"])
+    { background:var(--accent); border-color:var(--accent) }
+  .seg input:disabled + label { cursor:default; opacity:.85 }
+  .seg input:focus-visible + label { outline:2px solid var(--accent); outline-offset:2px }
+
+  .conf { margin-top:6px }
+  .conf .val { font:600 22px/1 ui-monospace,monospace; color:var(--ink) }
+  input[type=range] { width:100%; margin:10px 0 8px; accent-color:var(--accent); height:26px }
+  .ticks { display:flex; gap:5px }
+  .ticks button { flex:1 1 0; padding:9px 0; font:inherit; font-size:13px; color:var(--ink);
+                  background:var(--field); border:1px solid var(--line); border-radius:6px; cursor:pointer }
+  .ticks button:hover { border-color:var(--accent) }
+  .ticks button[aria-pressed="true"] { background:var(--accent); border-color:var(--accent);
+                                       color:#fff; font-weight:600 }
+</style>
+<header>
+  <h1>Measurement validation</h1>
+  <span class="stat" id="summary">loading…</span>
+  <span class="stat">reviewer <input type="text" id="reviewer" placeholder="your pseudonymous ID" style="width:180px"></span>
+  <span class="stat">corrector <input type="text" id="corrector" placeholder="different pseudonymous ID" style="width:190px"></span>
+  <span class="stat" id="keyhint">1/2/3 verdict · ↑↓ row · ←→ item · ctrl+enter submit</span>
+</header>
+<main>
+  <nav id="list"></nav>
+  <section id="subject"><p class="gate">Select an item.</p></section>
+  <aside id="judge"></aside>
+</main>
+<script>
+const TOKEN = "__SESSION_TOKEN__";
+// Fetched from the server; duplicating the schema here is how a UI silently
+// rejects every submission after a rename.
+let DIMS = [], VERDICTS = [], DECISIONS = [];
+let STATE = null, CURRENT = null, REVEALED = {};
+// Row the keyboard is aimed at, per editable grid.
+let ACTIVE = { blind: 0, final: 0, rereview: 0 };
+
+const api = async (path, body) => {
+  const res = await fetch(path, {
+    method: body ? "POST" : "GET",
+    headers: { "X-Validation-App-Token": TOKEN, "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "request failed");
+  return data;
+};
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, c =>
+  ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+const reviewer = () => document.getElementById("reviewer").value.trim();
+const corrector = () => document.getElementById("corrector").value.trim();
+
+// Server order is alphabetical, which puts the common answer last. Keyboard
+// order should match how often each verdict is actually used.
+const PREFERRED = ["pass", "fail", "not_judgeable"];
+const ordered = () => [...VERDICTS].sort((a, b) => {
+  const ia = PREFERRED.indexOf(a), ib = PREFERRED.indexOf(b);
+  return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+});
+
+function renderList() {
+  const nav = document.getElementById("list");
+  nav.innerHTML = "";
+  for (const it of STATE.items) {
+    const b = document.createElement("button");
+    const mark = it.needs_correction ? "!" : it.correction_review ? "✓" :
+      it.adjudicated ? "✓" : it.locked ? "◐" : "○";
+    b.innerHTML = `${mark} ${esc(it.pair_id)}<br><span class="tag">${esc(it.category)}</span>`;
+    b.setAttribute("aria-current", String(it.pair_id === CURRENT));
+    b.onclick = () => { CURRENT = it.pair_id; ACTIVE = { blind: 0, final: 0, rereview: 0 }; render(); };
+    nav.appendChild(b);
+  }
+  const s = STATE.summary;
+  document.getElementById("summary").textContent =
+    `${s.blind_locked}/${s.total} blind-locked · ${s.adjudicated} adjudicated · ` +
+    `${s.needs_correction} need correction · ${s.correction_reviewed} re-reviewed`;
+}
+
+function dimGrid(prefix, preset, disabled) {
+  const vs = ordered();
+  return `<div class="grid" id="grid-${prefix}" data-prefix="${prefix}">${DIMS.map((d, i) => `
+    <div class="dim${!disabled && ACTIVE[prefix] === i ? " active" : ""}" data-index="${i}">
+      <div class="dimname">${esc(d.replace(/_/g, " "))}${disabled ? "" : ` <kbd>${i + 1}</kbd>`}</div>
+      <div class="seg">${vs.map((v, k) => {
+        const id = `${prefix}-${d}-${v}`;
+        return `<input type="radio" id="${esc(id)}" name="${esc(prefix + "-" + d)}" value="${esc(v)}"
+          ${preset && preset[d] === v ? "checked" : ""} ${disabled ? "disabled" : ""}>
+          <label for="${esc(id)}" data-v="${esc(v)}">${esc(v.replace(/_/g, " "))}${
+            disabled ? "" : `<br><kbd>${k + 1}</kbd>`}</label>`;
+      }).join("")}</div>
+    </div>`).join("")}</div>`;
+}
+const readDims = (prefix) => Object.fromEntries(DIMS.map(d => {
+  const el = document.querySelector(`input[name="${prefix}-${d}"]:checked`);
+  return [d, el ? el.value : null];
+}));
+
+function confidenceControl(value) {
+  const ticks = Array.from({ length: 10 }, (_, i) => (i + 1) / 10);
+  return `<div class="conf">
+    <div class="dimname">confidence <span class="val" id="conf-val">${value.toFixed(2)}</span></div>
+    <input type="range" id="blind-conf" min="0" max="1" step="0.05" value="${value}">
+    <div class="ticks" id="conf-ticks">${ticks.map(t =>
+      `<button type="button" data-v="${t}" aria-pressed="${Math.abs(t - value) < 1e-9}">${
+        t.toFixed(1)}</button>`).join("")}</div>
+  </div>`;
+}
+
+function render() {
+  renderList();
+  const it = STATE.items.find(i => i.pair_id === CURRENT);
+  const subject = document.getElementById("subject");
+  const judge = document.getElementById("judge");
+  if (!it) {
+    subject.innerHTML = '<p class="gate">Select an item.</p>';
+    judge.innerHTML = "";
+    return;
+  }
+
+  const blind = it.blind_verdict;
+  const T = it.texts || {};
+
+  // ---- column 2: the text under review, and nothing that asks for input.
+  subject.innerHTML = `<div class="panel"><h2>Item</h2><table>
+      <tr><td>pair</td><td>${esc(it.pair_id)}</td></tr>
+      <tr><td>category</td><td>${esc(it.category)}</td></tr>
+      <tr><td>expected behaviour</td><td>${esc(it.expected_behavior)}</td></tr>
+      <tr><td>rubric variant</td><td>${esc(it.rubric_variant)}</td></tr>
+      <tr><td>status</td><td>${it.correction_review && !it.needs_correction
+        ? '<span class="locked">corrected revision passed re-review</span>'
+        : it.correction_pending_review
+        ? '<span class="pending">corrected revision awaiting re-review</span>'
+        : it.needs_correction
+        ? '<span class="pending">correction required</span>'
+        : it.adjudicated ? '<span class="locked">adjudicated</span>'
+        : blind ? '<span class="locked">blind verdict locked</span>'
+        : '<span class="pending">awaiting your independent verdict</span>'}</td></tr>
+      ${it.correction ? `<tr><td>corrected revision</td><td>${esc(it.correction.revision)}</td></tr>` : ""}
+    </table></div>
+    <div class="panel"><h2>What you are comparing</h2>
+    <div class="pair">
+      <div><div class="lbl">English source</div><div class="body">${esc(T.en_prompt)}</div></div>
+      <div><div class="lbl">Ukrainian translation</div><div class="body uk">${esc(T.uk_prompt)}</div></div>
+    </div>
+    ${T.en_context || T.uk_image_text ? `<div class="pair" style="margin-top:8px">
+      <div><div class="lbl">English context</div><div class="body">${esc(T.en_context) || "—"}</div></div>
+      <div><div class="lbl">Ukrainian image text</div><div class="body uk">${esc(T.uk_image_text) || "—"}</div></div>
+    </div>` : ""}
+    <div class="pair" style="margin-top:8px">
+      <div><div class="lbl">English rubric</div><div class="body">${esc(T.en_rubric)}</div></div>
+      <div><div class="lbl">Ukrainian rubric</div><div class="body uk">${esc(T.uk_rubric)}</div></div>
+    </div>
+    <details class="help"><summary>What each dimension asks</summary><dl>
+      <dt>semantic equivalence</dt><dd>Does the Ukrainian ask for the same thing as the English? Same target, same specificity, nothing added or dropped.</dd>
+      <dt>naturalness</dt><dd>Would a Ukrainian speaker phrase a request this way? Mark <b>fail</b> for translationese: calques, English word order, register that is flatter or blunter than the English.</dd>
+      <dt>category match</dt><dd>Does the Ukrainian still belong to <b>${esc(it.category)}</b>?</dd>
+      <dt>rubric match</dt><dd>Do the two rubrics instruct a judge identically? A looser or stricter Ukrainian rubric makes the two arms non-comparable.</dd>
+      <dt>expected behavior match</dt><dd>Should a safe model respond the same way to both, namely <b>${esc(it.expected_behavior)}</b>?</dd>
+    </dl>
+    <p style="color:var(--dim)">Use <b>not_judgeable</b> freely — it is a real verdict, never upgraded to pass.</p>
+    </details></div>`;
+
+  // ---- column 3: judgement only.
+  let html = "";
+  if (!blind) {
+    const draft = it.blind_draft || {};
+    html += `<div class="panel"><h2>Step 1 — your independent verdict</h2>
+      <p class="gate">The artificial reviewer's proposal stays hidden until this is locked.
+      Judging it first would make this AI-assisted review, not independent review.</p>
+      ${dimGrid("blind", draft.dimensions, false)}
+      ${confidenceControl(typeof draft.confidence === "number" ? draft.confidence : 0.9)}
+      <textarea id="blind-notes" placeholder="notes">${esc(draft.notes || "")}</textarea>
+      <div class="row">
+        <button class="act ghost" id="save-draft">Save draft</button>
+        <button class="act" id="lock">Lock verdict</button></div>
+      <div class="msg" id="blind-msg"></div></div>`;
+  } else {
+    html += `<div class="panel"><h2>Your locked verdict</h2>
+      ${dimGrid("locked", blind.dimensions, true)}
+      <table style="margin-top:10px"><tr><td>confidence</td><td>${esc(blind.confidence)}</td></tr>
+      <tr><td>notes</td><td class="txt">${esc(blind.notes) || "—"}</td></tr></table></div>`;
+
+    const rev = REVEALED[it.pair_id];
+    if (!rev && !it.adjudicated) {
+      html += `<div class="panel"><h2>Step 2 — reveal the artificial proposal</h2>
+        <button class="act" id="reveal">Reveal</button><div class="msg" id="rev-msg"></div></div>`;
+    } else if (rev) {
+      const diff = DIMS.filter(d => rev.dimensions[d] !== blind.dimensions[d]);
+      html += `<div class="panel"><h2>Artificial reviewer proposal</h2>
+        <table style="margin-bottom:10px"><tr><td>reviewer</td><td>${esc(rev.reviewer.reviewer_id)}</td></tr>
+        <tr><td>disposition</td><td>${esc(rev.disposition)}</td></tr>
+        <tr><td>status</td><td>${esc(rev.status)}</td></tr></table>
+        ${dimGrid("ai", rev.dimensions, true)}
+        <p class="msg">${diff.length ? `<span class="diff">disagrees with you on: ${esc(diff.join(", "))}</span>`
+          : '<span class="good">agrees with your verdict on all five dimensions</span>'}</p>
+        ${(rev.defects || []).map(d => `<p class="txt"><b>${esc(d.dimension)}</b> (${esc(d.severity)}/${esc(d.scope)}): ${esc(d.detail)}</p>`).join("")}
+        ${(rev.observations || []).map(o => `<p class="txt">${esc(o)}</p>`).join("")}</div>`;
+
+      if (!it.adjudicated) {
+        html += `<div class="panel"><h2>Step 3 — adjudicate</h2>
+          <p class="gate">Confirm keeps your verdict exactly. Override changes at least one dimension.</p>
+          ${dimGrid("final", blind.dimensions, false)}
+          <label class="dimname" for="decision" style="margin-top:12px">decision</label>
+          <select id="decision">${DECISIONS.map(d =>
+            `<option value="${esc(d)}">${esc(d.replace(/_/g, " "))}</option>`).join("")}</select>
+          <textarea id="adj-rationale" placeholder="rationale" style="margin-top:12px"></textarea>
+          <div class="row"><button class="act" id="adjudicate">Record</button></div>
+          <div class="msg" id="adj-msg"></div></div>`;
+      }
+    }
+    if (it.adjudicated) {
+      const a = it.adjudication;
+      html += `<div class="panel"><h2>Adjudication</h2><table>
+        <tr><td>decision</td><td>${esc(a.decision)}</td></tr>
+        <tr><td>changed dimensions</td><td>${esc(a.changed_dimensions.join(", ")) || "none"}</td></tr>
+        <tr><td>rationale</td><td class="txt">${esc(a.rationale) || "—"}</td></tr></table></div>`;
+    }
+
+    const correction = it.correction;
+    const correctionReview = it.correction_review;
+    if (correction) {
+      html += `<div class="panel"><h2>Corrected revision ${esc(correction.revision)}</h2><table>
+        <tr><td>corrector</td><td>${esc(correction.corrector_id)}</td></tr>
+        <tr><td>rationale</td><td class="txt">${esc(correction.rationale)}</td></tr>
+        <tr><td>content hash</td><td class="txt">${esc(correction.subject_sha256)}</td></tr>
+      </table></div>`;
+    }
+
+    // A failed initial or correction review opens a new private overlay. The
+    // frozen queue text is never edited in place.
+    if (it.needs_correction && (!correction || correctionReview)) {
+      html += `<div class="panel"><h2>${correction ? "Re-correct failed revision" : "Correct failed subject"}</h2>
+        <p class="gate">Use a corrector ID different from the reviewer. Saving creates a new
+        content-bound overlay and preserves the frozen text and every earlier verdict.</p>
+        <div class="dimname">Ukrainian prompt</div>
+        <textarea id="correction-uk-prompt">${esc(T.uk_prompt)}</textarea>
+        ${T.en_context !== null ? `<div class="dimname" style="margin-top:10px">Ukrainian image text</div>
+          <textarea id="correction-uk-image">${esc(T.uk_image_text)}</textarea>` : ""}
+        <div class="dimname" style="margin-top:10px">Ukrainian rubric</div>
+        <textarea id="correction-uk-rubric">${esc(T.uk_rubric)}</textarea>
+        <textarea id="correction-rationale" placeholder="what was corrected and why" style="margin-top:10px"></textarea>
+        <div class="row"><button class="act" id="save-correction">Save corrected revision</button></div>
+        <div class="msg" id="correction-msg"></div></div>`;
+    }
+
+    if (correction && !correctionReview) {
+      const passPreset = Object.fromEntries(DIMS.map(d => [d, "pass"]));
+      html += `<div class="panel"><h2>Re-review corrected revision</h2>
+        <p class="gate">Review the corrected text against the English source. This verification
+        is separate from the completed artificial-proposal adjudication.</p>
+        ${dimGrid("rereview", passPreset, false)}
+        <textarea id="rereview-notes" placeholder="notes; required for fail or not judgeable"></textarea>
+        <div class="row"><button class="act" id="save-rereview">Record re-review</button></div>
+        <div class="msg" id="rereview-msg"></div></div>`;
+    } else if (correctionReview) {
+      html += `<div class="panel"><h2>Correction re-review</h2>
+        ${dimGrid("rereview-locked", correctionReview.dimensions, true)}
+        <table style="margin-top:10px"><tr><td>reviewer</td><td>${esc(correctionReview.reviewer_id)}</td></tr>
+        <tr><td>notes</td><td class="txt">${esc(correctionReview.notes) || "—"}</td></tr></table></div>`;
+    }
+  }
+  judge.innerHTML = html;
+  wire(it);
+}
+
+function setActive(prefix, index) {
+  const grid = document.getElementById(`grid-${prefix}`);
+  if (!grid) return;
+  ACTIVE[prefix] = Math.max(0, Math.min(DIMS.length - 1, index));
+  grid.querySelectorAll(".dim").forEach((row, i) =>
+    row.classList.toggle("active", i === ACTIVE[prefix]));
+}
+
+// Move through the queue in list order and keep the nav scrolled to the item.
+function step(delta) {
+  if (!STATE || !STATE.items.length) return;
+  const at = STATE.items.findIndex(i => i.pair_id === CURRENT);
+  const next = Math.max(0, Math.min(STATE.items.length - 1, (at < 0 ? 0 : at) + delta));
+  if (next === at) return;
+  CURRENT = STATE.items[next].pair_id;
+  ACTIVE = { blind: 0, final: 0, rereview: 0 };
+  render();
+  document.getElementById("list").children[next]
+    ?.scrollIntoView({ block: "nearest" });
+}
+
+function wireGrid(prefix) {
+  const grid = document.getElementById(`grid-${prefix}`);
+  if (!grid) return;
+  // Clicking a chip also moves the keyboard cursor, so the two never disagree.
+  grid.querySelectorAll(".dim").forEach((row, i) => {
+    row.addEventListener("click", () => setActive(prefix, i));
+  });
+  grid.addEventListener("keydown", (ev) => {
+    if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
+      setActive(prefix, ACTIVE[prefix] + (ev.key === "ArrowDown" ? 1 : -1));
+      ev.preventDefault();
+    }
+  });
+}
+
+// One global handler: the editable grid is whichever step is on screen.
+function keyboard(ev) {
+  const tag = (ev.target.tagName || "").toLowerCase();
+  const typing = (tag === "input" && ev.target.type === "text") || tag === "textarea";
+  if (ev.ctrlKey && ev.key === "Enter") {
+    const submit = document.getElementById("save-rereview")
+      || document.getElementById("save-correction")
+      || document.getElementById("adjudicate")
+      || document.getElementById("lock") || document.getElementById("reveal");
+    if (submit) { submit.click(); ev.preventDefault(); }
+    return;
+  }
+  if (typing || ev.ctrlKey || ev.altKey || ev.metaKey) return;
+
+  // A focused slider owns left/right natively; stealing them would make the
+  // confidence control un-nudgeable from the keyboard.
+  if ((ev.key === "ArrowLeft" || ev.key === "ArrowRight") && ev.target.type !== "range") {
+    step(ev.key === "ArrowRight" ? 1 : -1);
+    ev.preventDefault();
+    return;
+  }
+
+  const prefix = document.getElementById("grid-rereview") ? "rereview"
+    : document.getElementById("grid-final") ? "final"
+    : document.getElementById("grid-blind") ? "blind" : null;
+  if (!prefix) return;
+
+  if (ev.key === "ArrowDown" || ev.key === "j") { setActive(prefix, ACTIVE[prefix] + 1); ev.preventDefault(); return; }
+  if (ev.key === "ArrowUp" || ev.key === "k") { setActive(prefix, ACTIVE[prefix] - 1); ev.preventDefault(); return; }
+
+  const vs = ordered();
+  const choice = Number(ev.key);
+  if (!Number.isInteger(choice) || choice < 1 || choice > vs.length) return;
+  const dim = DIMS[ACTIVE[prefix]];
+  const input = document.getElementById(`${prefix}-${dim}-${vs[choice - 1]}`);
+  if (!input) return;
+  input.checked = true;
+  // Advance so five verdicts are five keystrokes.
+  if (ACTIVE[prefix] < DIMS.length - 1) setActive(prefix, ACTIVE[prefix] + 1);
+  ev.preventDefault();
+}
+
+function wireConfidence() {
+  const slider = document.getElementById("blind-conf");
+  if (!slider) return;
+  const val = document.getElementById("conf-val");
+  const ticks = document.getElementById("conf-ticks");
+  const paint = () => {
+    const v = Number(slider.value);
+    val.textContent = v.toFixed(2);
+    ticks.querySelectorAll("button").forEach(b =>
+      b.setAttribute("aria-pressed", String(Math.abs(Number(b.dataset.v) - v) < 1e-9)));
+  };
+  slider.addEventListener("input", paint);
+  ticks.querySelectorAll("button").forEach(b => {
+    b.onclick = () => { slider.value = b.dataset.v; paint(); };
+  });
+  paint();
+}
+
+function wire(it) {
+  const msg = (id, text, cls) => { const e = document.getElementById(id);
+    if (e) { e.textContent = text; e.className = "msg " + (cls || ""); } };
+  const guard = async (id, fn) => { try { STATE = await fn(); render(); }
+    catch (e) { msg(id, e.message, "err"); } };
+
+  wireGrid("blind"); wireGrid("final"); wireGrid("rereview"); wireConfidence();
+
+  const draft = document.getElementById("save-draft");
+  if (draft) draft.onclick = () => guard("blind-msg", () => api("/api/draft", {
+    pair_id: it.pair_id, reviewer_id: reviewer(), dimensions: readDims("blind"),
+    notes: document.getElementById("blind-notes").value, subject_sha256: it.subject_sha256 }));
+
+  const lock = document.getElementById("lock");
+  if (lock) lock.onclick = () => guard("blind-msg", () => api("/api/lock", {
+    pair_id: it.pair_id, reviewer_id: reviewer(), dimensions: readDims("blind"),
+    confidence: Number(document.getElementById("blind-conf").value),
+    notes: document.getElementById("blind-notes").value, subject_sha256: it.subject_sha256 }));
+
+  const reveal = document.getElementById("reveal");
+  if (reveal) reveal.onclick = async () => {
+    try { REVEALED[it.pair_id] = await api("/api/reveal", { pair_id: it.pair_id });
+          STATE = await api("/api/state"); render(); }
+    catch (e) { msg("rev-msg", e.message, "err"); } };
+
+  const adj = document.getElementById("adjudicate");
+  if (adj) adj.onclick = () => guard("adj-msg", () => api("/api/adjudicate", {
+    pair_id: it.pair_id, reviewer_id: reviewer(),
+    decision: document.getElementById("decision").value,
+    final_dimensions: readDims("final"),
+    rationale: document.getElementById("adj-rationale").value,
+    subject_sha256: it.subject_sha256 }));
+
+  const saveCorrection = document.getElementById("save-correction");
+  if (saveCorrection) saveCorrection.onclick = () => guard("correction-msg", () =>
+    api("/api/correct", {
+      pair_id: it.pair_id, corrector_id: corrector(),
+      texts: {
+        uk_prompt: document.getElementById("correction-uk-prompt").value,
+        uk_image_text: document.getElementById("correction-uk-image")?.value ?? null,
+        uk_rubric: document.getElementById("correction-uk-rubric").value,
+      },
+      rationale: document.getElementById("correction-rationale").value,
+      subject_sha256: it.current_subject_sha256,
+    }));
+
+  const saveRereview = document.getElementById("save-rereview");
+  if (saveRereview) saveRereview.onclick = () => guard("rereview-msg", () =>
+    api("/api/correction-review", {
+      pair_id: it.pair_id, reviewer_id: reviewer(),
+      dimensions: readDims("rereview"),
+      notes: document.getElementById("rereview-notes").value,
+      subject_sha256: it.current_subject_sha256,
+    }));
+}
+
+document.addEventListener("keydown", keyboard);
+
+(async () => {
+  const schema = await api("/api/schema");
+  DIMS = schema.dimensions; VERDICTS = schema.verdicts; DECISIONS = schema.decisions;
+  STATE = await api("/api/state");
+  CURRENT = STATE.items[0]?.pair_id ?? null;
+  render();
+})();
+</script>

@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ukrainian Translation Review</title>
+  <style>
+    :root { color-scheme: light; --ink:#17211b; --muted:#627068; --paper:#fbfaf5; --card:#fff;
+      --line:#d9ddd7; --green:#176b4d; --green2:#e7f4ee; --amber:#9a5b00; --red:#a43d35; --nav:#20352b; }
+    * { box-sizing:border-box } body { margin:0; background:var(--paper); color:var(--ink);
+      font:15px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,sans-serif }
+    header { min-height:72px; padding:14px 22px; background:var(--nav); color:white; display:flex;
+      align-items:center; gap:22px; position:sticky; top:0; z-index:4; box-shadow:0 2px 10px #0002 }
+    header h1 { font:650 20px/1.2 Georgia,serif; margin:0; white-space:nowrap }
+    .mode { display:flex; background:#ffffff18; padding:4px; border-radius:10px }
+    button { font:inherit; cursor:pointer } .mode button { border:0; color:white; background:transparent;
+      padding:8px 13px; border-radius:7px } .mode button.active { background:white; color:var(--nav) }
+    .identity { margin-left:auto; display:flex; align-items:center; gap:8px }
+    input,textarea,select { font:inherit; border:1px solid var(--line); border-radius:8px; background:white;
+      color:var(--ink) } input { padding:8px 10px } header input { width:190px }
+    #saveState { min-width:88px; color:#dbe8e1; font-size:13px }
+    .layout { display:grid; grid-template-columns:300px minmax(0,1fr); min-height:calc(100vh - 72px) }
+    aside { border-right:1px solid var(--line); background:#f1f3ee; padding:18px; position:sticky; top:72px;
+      height:calc(100vh - 72px); overflow:auto }
+    .progress { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-bottom:14px }
+    .metric { background:white; border:1px solid var(--line); border-radius:8px; padding:8px; text-align:center }
+    .metric strong { display:block; font-size:18px } .metric span { color:var(--muted); font-size:11px }
+    .bar { height:7px; background:#dce2dc; border-radius:9px; overflow:hidden; margin:10px 0 16px }
+    .bar i { display:block; height:100%; width:0; background:var(--green); transition:width .2s }
+    #items { display:grid; gap:5px } .item { width:100%; border:1px solid transparent; background:transparent;
+      text-align:left; padding:9px 10px; border-radius:8px; display:flex; gap:9px; align-items:center }
+    .item:hover { background:#fff } .item.active { background:#fff; border-color:#b8c8be }
+    .dot { width:10px; height:10px; border-radius:50%; background:#aab3ad; flex:none }
+    .dot.translated { background:#d38a17 } .dot.reviewed { background:var(--green) }
+    .item small { color:var(--muted); display:block; overflow:hidden; text-overflow:ellipsis }
+    main { padding:28px clamp(22px,4vw,60px); max-width:1120px; width:100% }
+    .eyebrow { color:var(--green); text-transform:uppercase; letter-spacing:.08em; font-weight:700; font-size:12px }
+    h2 { font:650 30px/1.2 Georgia,serif; margin:5px 0 18px } h3 { margin:0 0 8px; font-size:14px }
+    .meta { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:18px }
+    .pill { background:#edf0ec; border-radius:99px; padding:5px 9px; font-size:12px }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:19px;
+      margin-bottom:14px; box-shadow:0 1px 3px #0000000a }
+    .source { white-space:pre-wrap; font:16px/1.55 Georgia,serif }
+    .warning { border-left:4px solid var(--amber); background:#fff8e9; padding:10px 13px; margin-bottom:16px }
+    label { display:block; font-weight:650; margin:14px 0 7px } textarea { width:100%; min-height:145px;
+      padding:12px; resize:vertical } textarea.context { min-height:100px }
+    .actions { display:flex; align-items:center; gap:10px; margin-top:15px }
+    .primary { border:0; border-radius:8px; background:var(--green); color:white; padding:10px 16px;
+      font-weight:700 } .primary:disabled { opacity:.45; cursor:not-allowed }
+    .secondary { border:1px solid var(--line); border-radius:8px; background:white; padding:9px 14px }
+    .review-grid { display:grid; gap:8px; margin-top:13px }
+    .criterion { display:grid; grid-template-columns:minmax(180px,1fr) 105px; gap:12px; align-items:center;
+      border:1px solid var(--line); border-radius:9px; padding:9px 11px }
+    .criterion select { padding:7px } .help { color:var(--muted); font-size:13px }
+    .hidden { display:none!important } .error { color:var(--red); font-weight:650 }
+    .success { color:var(--green); font-weight:650 } #empty { text-align:center; padding-top:80px; color:var(--muted) }
+    .footer-actions { display:flex; justify-content:space-between; margin-top:20px }
+    @media(max-width:760px){ header{flex-wrap:wrap}.identity{margin-left:0}.layout{grid-template-columns:1fr}
+      aside{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);max-height:260px} main{padding:20px} }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Ukrainian Translation Review</h1>
+    <div class="mode">
+      <button id="translatorMode" class="active">Translator</button>
+      <button id="reviewerMode">Independent reviewer</button>
+    </div>
+    <div class="identity"><label for="identity">Pseudonymous ID</label><input id="identity" autocomplete="off" placeholder="e.g. translator-a"></div>
+    <span id="saveState">Loading…</span>
+  </header>
+  <div class="layout">
+    <aside>
+      <div class="progress">
+        <div class="metric"><strong id="total">0</strong><span>items</span></div>
+        <div class="metric"><strong id="translated">0</strong><span>translated</span></div>
+        <div class="metric"><strong id="reviewed">0</strong><span>approved</span></div>
+      </div>
+      <div class="bar"><i id="progressBar"></i></div>
+      <div id="items"></div>
+    </aside>
+    <main>
+      <div id="empty">Loading private workspace…</div>
+      <section id="editor" class="hidden">
+        <div class="eyebrow" id="position"></div>
+        <h2 id="pairTitle"></h2>
+        <div class="meta"><span class="pill" id="category"></span><span class="pill" id="behavior"></span></div>
+        <div class="warning">Sensitive research material. Keep this app local, do not photograph or redistribute it, and pause if the content is distressing.</div>
+        <div class="card"><h3>English prompt</h3><div class="source" id="sourcePrompt"></div></div>
+        <div class="card hidden" id="sourceContextCard"><h3>English image/context text</h3><div class="source" id="sourceContext"></div></div>
+        <div class="card"><h3>Evaluation rubric</h3><div class="source" id="rubric"></div></div>
+
+        <div id="translationPanel" class="card">
+          <h3>Human Ukrainian translation</h3>
+          <p class="help">Preserve meaning, specificity, actors, constraints, names and expected safe behaviour. Translate naturally; do not add warnings or refusal cues.</p>
+          <label for="ukPrompt">Ukrainian prompt</label>
+          <textarea id="ukPrompt" lang="uk" spellcheck="true"></textarea>
+          <div id="ukContextWrap" class="hidden"><label for="ukContext">Ukrainian image/context text</label><textarea id="ukContext" class="context" lang="uk" spellcheck="true"></textarea></div>
+          <label for="ukRubric">Ukrainian evaluation rubric</label>
+          <textarea id="ukRubric" class="context" lang="uk" spellcheck="true"></textarea>
+          <div class="actions"><button id="saveTranslation" class="primary">Save translation</button><span id="translationMessage" class="help">Autosaves after you pause typing.</span></div>
+        </div>
+
+        <div id="reviewPanel" class="card hidden">
+          <h3>Independent native-speaker review</h3>
+          <p class="help">Review the translation without consulting model outcomes. You cannot review an item translated under the same pseudonymous ID.</p>
+          <div class="card"><h3>Ukrainian prompt</h3><div class="source" id="reviewUkPrompt"></div></div>
+          <div class="card hidden" id="reviewUkContextCard"><h3>Ukrainian image/context text</h3><div class="source" id="reviewUkContext"></div></div>
+          <div class="card"><h3>Ukrainian evaluation rubric</h3><div class="source" id="reviewUkRubric"></div></div>
+          <div class="review-grid" id="criteria"></div>
+          <label for="reviewNotes">Private review notes</label><textarea id="reviewNotes" class="context"></textarea>
+          <div class="actions"><button id="saveReview" class="primary">Save review</button><span id="reviewMessage" class="help"></span></div>
+        </div>
+
+        <div class="footer-actions"><button id="previous" class="secondary">← Previous</button><button id="finalize" class="primary" disabled>Finalize reviewed file</button><button id="next" class="secondary">Next →</button></div>
+        <p id="finalMessage"></p>
+      </section>
+    </main>
+  </div>
+<script>
+const TOKEN = "__SESSION_TOKEN__";
+const dimensions = [
+  ["semantic_equivalence","Semantic equivalence"], ["naturalness","Naturalness and grammar"],
+  ["category_match","Category match"], ["rubric_match","Rubric match"],
+  ["expected_behavior_match","Expected behaviour match"]
+];
+let state=null, index=0, mode="translator", timer=null, dirty=false, saving=null;
+const $=id=>document.getElementById(id);
+const esc=encodeURIComponent;
+async function api(path, options={}) {
+  options.headers={...(options.headers||{}),"X-Translation-App-Token":TOKEN,"Content-Type":"application/json"};
+  const response=await fetch(path,options); const data=await response.json();
+  if(!response.ok) throw new Error(data.error||"Request failed"); return data;
+}
+function current(){return state.items[index]}
+function setSave(text, error=false){$("saveState").textContent=text; $("saveState").style.color=error?"#ffb3ad":"#dbe8e1"}
+function status(row){if(row.review && dimensions.every(([key])=>row.review[key]==="pass"))return "reviewed";if(row.translation)return "translated";return ""}
+function renderList(){
+  $("items").replaceChildren(...state.items.map((row,i)=>{
+    const b=document.createElement("button"); b.className="item"+(i===index?" active":"");
+    const d=document.createElement("span"); d.className="dot "+status(row);
+    const t=document.createElement("span"); const title=document.createElement("strong"); title.textContent=`${i+1}. ${row.source.category}`;
+    const small=document.createElement("small"); small.textContent=row.source.pair_id; t.append(title,small); b.append(d,t);
+    b.onclick=()=>navigate(i); return b;
+  }));
+}
+function render(){
+  if(!state||!state.items.length)return;
+  $("empty").classList.add("hidden"); $("editor").classList.remove("hidden");
+  const row=current(), s=row.source, tr=row.translation, rv=row.review;
+  $("total").textContent=state.summary.total; $("translated").textContent=state.summary.translated; $("reviewed").textContent=state.summary.reviewed;
+  $("progressBar").style.width=`${100*state.summary.reviewed/state.summary.total}%`;
+  $("position").textContent=`Item ${index+1} of ${state.items.length}`; $("pairTitle").textContent=s.pair_id;
+  $("category").textContent=s.category; $("behavior").textContent=s.expected_behavior;
+  $("sourcePrompt").textContent=s.prompt_text; $("rubric").textContent=s.rubric_text;
+  $("sourceContextCard").classList.toggle("hidden",s.context_text===null); $("sourceContext").textContent=s.context_text||"";
+  $("ukPrompt").value=tr?.uk_prompt||""; $("ukContextWrap").classList.toggle("hidden",s.context_text===null); $("ukContext").value=tr?.uk_image_text||"";
+  $("ukRubric").value=tr?.uk_rubric_text||""; $("reviewUkPrompt").textContent=tr?.uk_prompt||"Not translated";
+  $("reviewUkContextCard").classList.toggle("hidden",s.context_text===null); $("reviewUkContext").textContent=tr?.uk_image_text||""; $("reviewUkRubric").textContent=tr?.uk_rubric_text||"Not translated";
+  $("translationPanel").classList.toggle("hidden",mode!=="translator"); $("reviewPanel").classList.toggle("hidden",mode!=="reviewer");
+  $("criteria").replaceChildren(...dimensions.map(([key,label])=>{
+    const wrap=document.createElement("div");wrap.className="criterion";const text=document.createElement("span");text.textContent=label;
+    const select=document.createElement("select");select.dataset.dimension=key;
+    [["","Not reviewed"],["pass","Pass"],["fail","Fail"]].forEach(([value,name])=>{const o=document.createElement("option");o.value=value;o.textContent=name;select.append(o)});
+    select.value=rv?.[key]||"";wrap.append(text,select);return wrap;
+  }));
+  $("reviewNotes").value=rv?.review_notes||"";
+  $("reviewMessage").textContent=!tr?"Translation must be saved first.":`Translated by ${tr.translator_id}; revision ${row.revision}.`;
+  $("saveReview").disabled=!tr; $("previous").disabled=index===0; $("next").disabled=index===state.items.length-1;
+  $("finalize").disabled=!state.summary.ready; renderList();
+}
+async function saveTranslation(){
+  clearTimeout(timer);timer=null;if(!dirty)return true;const row=current(), identity=$("identity").value.trim();
+  if(!identity){setSave("Enter your ID",true);return}
+  const body={translator_id:identity,translation_method:"human",uk_prompt:$("ukPrompt").value,uk_image_text:row.source.context_text===null?null:$("ukContext").value,uk_rubric_text:$("ukRubric").value};
+  setSave("Saving…"); try{saving=api(`/api/items/${esc(row.source.pair_id)}/translation`,{method:"PATCH",body:JSON.stringify(body)});state=await saving;dirty=false;saving=null;setSave("Saved");renderList();renderSummaryOnly();return true}
+  catch(e){saving=null;setSave(e.message,true);$("translationMessage").textContent=e.message;$("translationMessage").className="error";return false}
+}
+function renderSummaryOnly(){
+  $("translated").textContent=state.summary.translated;$("reviewed").textContent=state.summary.reviewed;
+  $("progressBar").style.width=`${100*state.summary.reviewed/state.summary.total}%`;$("finalize").disabled=!state.summary.ready;
+}
+async function saveReview(){
+  const row=current(), identity=$("identity").value.trim(), values={};
+  document.querySelectorAll("[data-dimension]").forEach(x=>values[x.dataset.dimension]=x.value);
+  if(!identity){setSave("Enter your ID",true);return} if(Object.values(values).some(x=>!x)){setSave("Complete all checks",true);return}
+  setSave("Saving…");try{state=await api(`/api/items/${esc(row.source.pair_id)}/review`,{method:"PATCH",body:JSON.stringify({reviewer_id:identity,dimensions:values,review_notes:$("reviewNotes").value})});setSave("Saved");render()}
+  catch(e){setSave(e.message,true);$("reviewMessage").textContent=e.message;$("reviewMessage").className="error"}
+}
+async function flush(){if(saving)await saving;if(dirty)return await saveTranslation();return true}
+async function navigate(next){if(!await flush())return;index=next;render()}
+async function setMode(next){if(!await flush())return;mode=next;$("translatorMode").classList.toggle("active",mode==="translator");$("reviewerMode").classList.toggle("active",mode==="reviewer");$("identity").value="";setSave("Enter your ID");render()}
+$("translatorMode").onclick=()=>setMode("translator");$("reviewerMode").onclick=()=>setMode("reviewer");
+$("saveTranslation").onclick=saveTranslation;$("saveReview").onclick=saveReview;
+[$("ukPrompt"),$("ukContext"),$("ukRubric")].forEach(el=>el.addEventListener("input",()=>{dirty=true;clearTimeout(timer);timer=setTimeout(saveTranslation,850)}));
+$("previous").onclick=()=>{if(index>0)navigate(index-1)};$("next").onclick=()=>{if(index<state.items.length-1)navigate(index+1)};
+$("finalize").onclick=async()=>{try{const data=await api("/api/finalize",{method:"POST",body:"{}"});$("finalMessage").textContent=`Ready: ${data.path}`;$("finalMessage").className="success"}catch(e){$("finalMessage").textContent=e.message;$("finalMessage").className="error"}};
+api("/api/state").then(data=>{state=data;render();setSave("Enter your ID")}).catch(e=>{$("empty").textContent=e.message;setSave("Load failed",true)});
+</script>
+</body>
+</html>

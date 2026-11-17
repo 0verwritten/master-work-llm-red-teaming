@@ -1,0 +1,450 @@
+[
+  {
+    "source": "adversarial_pairs",
+    "item_id": "d1",
+    "field": "image",
+    "sha256": "7d82899ed6b8097f935d36cb6fa2a42c76aed0ee8683d7b9c378101e341d43d6",
+    "size_bytes": 105
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "d1",
+    "field": "text",
+    "sha256": "324d7e135760ee51c2e32276beec15440315c6e1cb7ba5033ac77e80bf77ef4f",
+    "size_bytes": 74
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "d2",
+    "field": "image",
+    "sha256": "afe212ce49e0888f95362f9e52ab26e058d92ceaa5361c24403327af2913de2e",
+    "size_bytes": 93
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "d2",
+    "field": "text",
+    "sha256": "939d13fd01ac69d7eb7edcbd28480ed4af3522928e91907493828cb12a75216a",
+    "size_bytes": 61
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "f1",
+    "field": "image",
+    "sha256": "1c4c995762fc3fdc5d279fc93a620bb071023b625ca383db857de9f8c0995cf1",
+    "size_bytes": 100
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "f1",
+    "field": "text",
+    "sha256": "1c4c995762fc3fdc5d279fc93a620bb071023b625ca383db857de9f8c0995cf1",
+    "size_bytes": 100
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "f2",
+    "field": "image",
+    "sha256": "83036ea4365ad572832023f0d0d0e99b91e1e07c815fd4656f2e93b396db79c7",
+    "size_bytes": 82
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "f2",
+    "field": "text",
+    "sha256": "83036ea4365ad572832023f0d0d0e99b91e1e07c815fd4656f2e93b396db79c7",
+    "size_bytes": 82
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "h1",
+    "field": "image",
+    "sha256": "f05eef630292910cdc86b6d40728e3796a78e6cc41db3940bec3290b80f675fc",
+    "size_bytes": 99
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "h1",
+    "field": "text",
+    "sha256": "f05eef630292910cdc86b6d40728e3796a78e6cc41db3940bec3290b80f675fc",
+    "size_bytes": 99
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "h2",
+    "field": "image",
+    "sha256": "00df7d259612b4cc8dd67dc6d526488cb7b64acdcc1ec627fca8a92dee5e063e",
+    "size_bytes": 100
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "h2",
+    "field": "text",
+    "sha256": "00df7d259612b4cc8dd67dc6d526488cb7b64acdcc1ec627fca8a92dee5e063e",
+    "size_bytes": 100
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "i1",
+    "field": "image",
+    "sha256": "3e8da406cb0cde1b0857df7516c628fb9366095468d854ec24043ad51ee591c3",
+    "size_bytes": 92
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "i1",
+    "field": "text",
+    "sha256": "3e8da406cb0cde1b0857df7516c628fb9366095468d854ec24043ad51ee591c3",
+    "size_bytes": 92
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "i2",
+    "field": "image",
+    "sha256": "e2965510434447cc10657801ef57644010e75ca2ba9be111f48e962177823dd9",
+    "size_bytes": 81
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "i2",
+    "field": "text",
+    "sha256": "e2965510434447cc10657801ef57644010e75ca2ba9be111f48e962177823dd9",
+    "size_bytes": 81
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "pf1",
+    "field": "image",
+    "sha256": "1c4c995762fc3fdc5d279fc93a620bb071023b625ca383db857de9f8c0995cf1",
+    "size_bytes": 100
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "pf1",
+    "field": "text",
+    "sha256": "1c4c995762fc3fdc5d279fc93a620bb071023b625ca383db857de9f8c0995cf1",
+    "size_bytes": 100
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "ph1",
+    "field": "image",
+    "sha256": "f05eef630292910cdc86b6d40728e3796a78e6cc41db3940bec3290b80f675fc",
+    "size_bytes": 99
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "ph1",
+    "field": "text",
+    "sha256": "f05eef630292910cdc86b6d40728e3796a78e6cc41db3940bec3290b80f675fc",
+    "size_bytes": 99
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "pi1",
+    "field": "image",
+    "sha256": "3e8da406cb0cde1b0857df7516c628fb9366095468d854ec24043ad51ee591c3",
+    "size_bytes": 92
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "pi1",
+    "field": "text",
+    "sha256": "3e8da406cb0cde1b0857df7516c628fb9366095468d854ec24043ad51ee591c3",
+    "size_bytes": 92
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "ps1",
+    "field": "image",
+    "sha256": "80470c537b8860e9bafc3013c9798a937210e874fbe0a82f1f4bf004e8c2c4a5",
+    "size_bytes": 90
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "ps1",
+    "field": "text",
+    "sha256": "80470c537b8860e9bafc3013c9798a937210e874fbe0a82f1f4bf004e8c2c4a5",
+    "size_bytes": 90
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "pv1",
+    "field": "image",
+    "sha256": "a7679ce6668cc717a9884a3d8f8f680fee08344329e58cca6b451c484a00306d",
+    "size_bytes": 96
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "pv1",
+    "field": "text",
+    "sha256": "650353fc08ae9427cfcd70c4acf5d5147f53c4b798e98cf647af5d33546c6e68",
+    "size_bytes": 82
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "s1",
+    "field": "image",
+    "sha256": "80470c537b8860e9bafc3013c9798a937210e874fbe0a82f1f4bf004e8c2c4a5",
+    "size_bytes": 90
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "s1",
+    "field": "text",
+    "sha256": "80470c537b8860e9bafc3013c9798a937210e874fbe0a82f1f4bf004e8c2c4a5",
+    "size_bytes": 90
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "v1",
+    "field": "image",
+    "sha256": "a7679ce6668cc717a9884a3d8f8f680fee08344329e58cca6b451c484a00306d",
+    "size_bytes": 96
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "v1",
+    "field": "text",
+    "sha256": "650353fc08ae9427cfcd70c4acf5d5147f53c4b798e98cf647af5d33546c6e68",
+    "size_bytes": 82
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "v2",
+    "field": "image",
+    "sha256": "d426e06959fb22bf18f2f69068c4cb32e01961210aa846c3e6175054f684cf49",
+    "size_bytes": 78
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "v2",
+    "field": "text",
+    "sha256": "d426e06959fb22bf18f2f69068c4cb32e01961210aa846c3e6175054f684cf49",
+    "size_bytes": 78
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "x1",
+    "field": "image",
+    "sha256": "6f84f4ccf4c3b0128962f4128f52ca9579a7265d68b9c6becf3650082e32af50",
+    "size_bytes": 83
+  },
+  {
+    "source": "adversarial_pairs",
+    "item_id": "x1",
+    "field": "text",
+    "sha256": "6f84f4ccf4c3b0128962f4128f52ca9579a7265d68b9c6becf3650082e32af50",
+    "size_bytes": 83
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "10",
+    "field": "text",
+    "sha256": "a2c9538a1123ee11ac056c9e5f51035e8b45bafe6f768b3abe352950b42380ca",
+    "size_bytes": 69
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "12",
+    "field": "text",
+    "sha256": "ac681a0f1219d5d2cf0c4e2d03da531823a74ae39a2e768d697f5927975a5745",
+    "size_bytes": 75
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "14",
+    "field": "text",
+    "sha256": "3d92c2227a2dae1ee4e48587b080efdcf0da9988ab659061387dafb97502d448",
+    "size_bytes": 38
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "16",
+    "field": "text",
+    "sha256": "fa853725586cb1198dee11e770cb73a5114d73129b761a223c46eaa92cddff18",
+    "size_bytes": 74
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "18",
+    "field": "text",
+    "sha256": "c1fde828de25b7ba846f7c1a7c97192100e99039fb86a58f14fdaa670107251b",
+    "size_bytes": 65
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "20",
+    "field": "text",
+    "sha256": "2d3896a7fbd13dbf3f1483ffdd800a0c1203aacf0827306f8071540f470efe25",
+    "size_bytes": 37
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "23",
+    "field": "text",
+    "sha256": "b5c4fd3144bdabdb9fea2091024ff718ab600bf42027719e93759e89f9be6c8e",
+    "size_bytes": 132
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "26",
+    "field": "text",
+    "sha256": "4f3305e5511f5aa918c8bc58d51ab97e34c4768c0f11c97edb609e100b9535f1",
+    "size_bytes": 55
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "30",
+    "field": "text",
+    "sha256": "5a8979102f25b500734386f7d7603340e8ecca05154504970a246dd36735ac85",
+    "size_bytes": 82
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "31",
+    "field": "text",
+    "sha256": "9f166717715f71ec805f5f56a5627f0afbacffb2ffa45841946d9291c0960254",
+    "size_bytes": 147
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "32",
+    "field": "text",
+    "sha256": "688376b73b019fcad53069d7e3dd6d07dad01e5ea7d1226a41121555011d18fd",
+    "size_bytes": 73
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "33",
+    "field": "text",
+    "sha256": "117e8cb3fbe3ac275e3c67aaa50e8f1030a19fe7dc6639f158ced984941c18be",
+    "size_bytes": 60
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "34",
+    "field": "text",
+    "sha256": "9a51c0dc4a543678e0cb2e333dc4ce6007735ed86224febf9352690b63c78247",
+    "size_bytes": 161
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "35",
+    "field": "text",
+    "sha256": "1b1c0075b8d0b22c0aff728cfbc8d7d4d78eb27f000a6d912d5ae4882ce1068b",
+    "size_bytes": 57
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "36",
+    "field": "text",
+    "sha256": "967c9c1512a45145edbc9dc42a6aba895a2b820dfd051df155cd9b8b8266faf4",
+    "size_bytes": 188
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "37",
+    "field": "text",
+    "sha256": "8a695efc2b07487d1299a485dd97a03885d3b722d90aa73ebf35212c347befdb",
+    "size_bytes": 153
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "38",
+    "field": "text",
+    "sha256": "cda2078d22f6b4366f35cd4f839fc6df9d9f3d10f7d4b3d9f9a3f3d566f9be93",
+    "size_bytes": 123
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "39",
+    "field": "text",
+    "sha256": "90faabe3c92872de168bef8c51d0123e931083fbab674dc9132226537a860edb",
+    "size_bytes": 71
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "40",
+    "field": "text",
+    "sha256": "df47f8b670a9251a0d67d3562ff47f736441ad52dc10fabd19ce6be202ff94c9",
+    "size_bytes": 71
+  },
+  {
+    "source": "guardrail_seed",
+    "item_id": "8",
+    "field": "text",
+    "sha256": "e8293384663c502568eaf5974566f80066fa2489280d58c5dcaa94f13b7e5fdf",
+    "size_bytes": 22
+  },
+  {
+    "source": "master-work",
+    "item_id": "mut-001",
+    "field": "text",
+    "sha256": "1a47f4f5587e3539b71bb4d566cde16983d11fe9144606e190311b132624b8b1",
+    "size_bytes": 194
+  },
+  {
+    "source": "master-work",
+    "item_id": "mut-002",
+    "field": "text",
+    "sha256": "fffa13dc3de60b15f52cce3d7a8fb209bd2c5e75aa5cd305fb2cbe0ee456b612",
+    "size_bytes": 136
+  },
+  {
+    "source": "master-work",
+    "item_id": "mut-003",
+    "field": "text",
+    "sha256": "12756005957c4695f8539769c43fe6c9c70d6005ae8f81f35e5bde90009e13f5",
+    "size_bytes": 126
+  },
+  {
+    "source": "master-work",
+    "item_id": "mut-004",
+    "field": "text",
+    "sha256": "e452b62bcfd24ed39099941578220c1a4d4b9d369a0a1a6749082009a6d7f067",
+    "size_bytes": 121
+  },
+  {
+    "source": "master-work",
+    "item_id": "mut-005",
+    "field": "text",
+    "sha256": "74461d561f1d9f1aac54dc3af4daab3f698fbecdd35bf402f2a5738ecf1d6f8d",
+    "size_bytes": 189
+  },
+  {
+    "source": "master-work",
+    "item_id": "tmpl-001",
+    "field": "text",
+    "sha256": "973245b3cf8f7b0ced37a77417e3e79634bae74053dd26858f0b5d7a12ba35de",
+    "size_bytes": 188
+  },
+  {
+    "source": "master-work",
+    "item_id": "tmpl-002",
+    "field": "text",
+    "sha256": "f18e6c044be8f1747b922cdf94a4054f36aaeebe1cecd86796b27e740749f4d6",
+    "size_bytes": 182
+  },
+  {
+    "source": "master-work",
+    "item_id": "tmpl-003",
+    "field": "text",
+    "sha256": "212b97cf8f14ed7cdaa5c1a9a0f16867518aea94961e05e93e751726cf91c279",
+    "size_bytes": 108
+  },
+  {
+    "source": "master-work",
+    "item_id": "tmpl-004",
+    "field": "text",
+    "sha256": "f2e4a2bf7f729195f1e92856668d618c59973fd4f004d590bb0ebb5c43089347",
+    "size_bytes": 124
+  },
+  {
+    "source": "master-work",
+    "item_id": "tmpl-005",
+    "field": "text",
+    "sha256": "053fe3cd500e1bb66bb242a96066c50e1878f2deabfd055329ac1c2d947f8ee8",
+    "size_bytes": 142
+  }
+]
